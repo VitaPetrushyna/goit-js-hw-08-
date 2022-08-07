@@ -1,57 +1,38 @@
 import throttle from 'lodash.throttle';
 
+const STORAGE_KEY = 'feedback-form-state';
+const feedbackFormData = {};
+
 const refs = {
   form: document.querySelector('.feedback-form'),
   textarea: document.querySelector('textarea'),
+  email: document.querySelector('input'),
 };
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.textarea.addEventListener('input', onTextareaInput);
+refs.form.addEventListener('input', throttle(onTextareaInput, 500));
 
 populetTextarea();
 
 function onFormSubmit(evt) {
   evt.preventDefault();
   evt.currentTarget.reset();
+
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 function onTextareaInput(evt) {
-  const message = evt.currentTarget.value;
-  localStorage.setItem('feedback-form-state', message);
+  feedbackFormData[evt.target.name] = evt.target.value;
+  console.log(feedbackFormData);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(feedbackFormData));
 }
 
 function populetTextarea() {
-  const savedMessage = localStorage.getItem('feedback-form-state');
+  const savedMessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
   if (savedMessage) {
     console.log(savedMessage);
-    refs.textarea.value = savedMessage;
+
+    refs.textarea.value = savedMessage.message;
+    refs.email.value = savedMessage.email;
   }
 }
-
-// const form = document.querySelector('.feedback-form');
-// form.addEventListener('input', throttle(onFormData, 500));
-// form.addEventListener('submit', onSubmitForm);
-
-// const formData = {};
-
-// function onFormData(e) {
-//   formData[e.target.name] = e.target.value;
-//   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
-// }
-
-// function onSubmitForm(e) {
-//   console.log(JSON.parse(localStorage.getItem('feedback-form-state')));
-//   e.preventDefault();
-//   e.currentTarget.reset();
-//   localStorage.removeItem('feedback-form-state');
-// }
-
-// (function dataFromLocalStorage() {
-//   const data = JSON.parse(localStorage.getItem('feedback-form-state'));
-//   const email = document.querySelector('.feedback-form input');
-//   const message = document.querySelector('.feedback-form textarea');
-//   if (data) {
-//     email.value = data.email;
-//     message.value = data.message;
-//   }
-// })();
