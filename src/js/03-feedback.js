@@ -1,6 +1,7 @@
 import throttle from 'lodash.throttle';
 
 const STORAGE_KEY = 'feedback-form-state';
+const feedbackFormData = {};
 
 const refs = {
   form: document.querySelector('.feedback-form'),
@@ -16,25 +17,22 @@ populetTextarea();
 function onFormSubmit(evt) {
   evt.preventDefault();
   evt.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
 
-  const formData = new FormData(refs.form);
-  formData.forEach((value, name) => console.log(value, name));
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 function onTextareaInput(evt) {
-  let persistedFilters = localStorage.getItem(STORAGE_KEY);
-  persistedFilters = persistedFilters ? JSON.parse(persistedFilters) : {};
-  persistedFilters[evt.target.name] = evt.target.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedFilters));
+  feedbackFormData[evt.target.name] = evt.target.value;
+  console.log(feedbackFormData);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(feedbackFormData));
 }
 
 function populetTextarea() {
-  let persistedFilters = localStorage.getItem(STORAGE_KEY);
-  if (persistedFilters) {
-    persistedFilters = JSON.parse(persistedFilters);
-    Object.entries(persistedFilters).forEach(([name, value]) => {
-      refs.form.elements[name].value = value;
-    });
+  const savedMessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (savedMessage) {
+    console.log(savedMessage);
+
+    refs.textarea.value = savedMessage.message;
+    refs.email.value = savedMessage.email;
   }
 }
